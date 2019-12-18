@@ -17,19 +17,10 @@ public class VectorQuantization {
     }
 
     private int[][] deCode(IOFile ioFile) {
-        System.out.println("+++++++  "+ioFile.imgCode);
 
         int bookW = ioFile.codeBook.get(0)[0].length;
         int bookH = ioFile.codeBook.get(0).length;
-        for(int[][]tmp:ioFile.codeBook){
-            for(int y=0;y<bookH;y++){
-                for(int x=0;x<bookW;x++){
-                    System.out.print(tmp[y][x]+" ");
-                }
-                System.out.println();
-            }
-            System.out.println();
-        }
+
         int imgWidth = ioFile.numOfColumns * bookW;
         int imgHeight = (ioFile.imgCode.size() / ioFile.numOfColumns) * bookH;
         int image[][] = new int[imgHeight][imgWidth];
@@ -55,13 +46,6 @@ public class VectorQuantization {
             }
             x += bookW;
         }
-        System.out.println("()()()()()()()()()()()()()()");
-        for (y = 0; y < imgHeight; y++) {
-            for (x = 0; x < imgWidth; x++) {
-                System.out.print(image[y][x] + " ");
-            }
-            System.out.println();
-        }
         return image;
     }
 
@@ -77,15 +61,7 @@ public class VectorQuantization {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for(int [][]codeBook:img.codeBook){
-            for(int y=0;y<blockH;y++){
-                for (int x=0;x<blockW;x++){
-                    System.out.print(codeBook[y][x]+" ");
-                }
-                System.out.println();
-            }
-            System.out.println();
-        }
+
     }
 
 
@@ -145,7 +121,7 @@ public class VectorQuantization {
                 }
 
                 int minIndex = distance.indexOf(Collections.min(distance));
-                if(performance==0){
+                if(performance==5){
                     childrenPosWithCode.add(Integer.toBinaryString(minIndex));
                 }
                 int children = childrenCount.get(minIndex);
@@ -158,7 +134,7 @@ public class VectorQuantization {
                 }
                 willSplit.set(minIndex, tmp);
             }
-            if(performance==0){
+            if(performance==5){
                 return childrenPosWithCode;
             }
             for (int i = 0; i < willSplit.size(); i++) {
@@ -254,7 +230,6 @@ public class VectorQuantization {
                 img.imgBlocks.add(block);
             }
         }
-        System.out.println(" ***** " + img.imgBlocks.size());
     }
 
     private static void handleImgWithBookSize(int bookW, int bookH) {
@@ -287,7 +262,6 @@ public class VectorQuantization {
             BufferedImage img = ImageIO.read(f);
             int oldW = img.getWidth();
             int oldH = img.getHeight();
-            System.out.println(oldH+" "+oldW);
             imageMAtrix = new int[oldH][oldW];
             for (int y = 0; y < oldH; y++) {
                 for (int x = 0; x < oldW; x++) {

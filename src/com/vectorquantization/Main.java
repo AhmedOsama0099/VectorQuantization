@@ -16,7 +16,7 @@ public class Main {
                 {4, 5, 18, 18, 5, 6}};*/
 
         VectorQuantization v=new VectorQuantization();
-        v.compress(5,5,4,"aa.jpg");
+        v.compress(5,5,15,"aa.jpg");
         try {
             v.deCompress("aa.jpg.txt");
         } catch (IOException e) {
