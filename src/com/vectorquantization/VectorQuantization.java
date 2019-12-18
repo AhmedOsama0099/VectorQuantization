@@ -1,19 +1,34 @@
 package com.vectorquantization;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class VectorQuantization {
     static Image img = new Image();
 
-    public void deCompress(String path) throws IOException, ClassNotFoundException {
-        IOFile ioFile = IOFile.ReadFromFile(path);
-        int[][] image = deCode(ioFile);
-        writeImage(image, "qqqqqqq.jpg");
+    public void deCompress(String path) {
+        IOFile ioFile = null;
+        try {
+            ioFile = IOFile.ReadFromFile(path);
+            int[][] image = deCode(ioFile);
+            Path p = Paths.get(path);
+
+            String name = p.getFileName().toString();
+            name = name.substring(0, name.lastIndexOf('.'));
+            writeImage(image, "DeCompressed_" + name);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "invalid path");
+        } catch (ClassNotFoundException e) {
+            JOptionPane.showMessageDialog(null, "invalid Class");
+        }
+
     }
 
     private int[][] deCode(IOFile ioFile) {
@@ -54,10 +69,11 @@ public class VectorQuantization {
         //img.matrix = mat;
         convertImgToBlocks(blockW, blockH);
 
-        ArrayList<String>imageCode=split(blockSize, blockW, blockH);
-        IOFile ioFile=new IOFile(img.matrix.length/blockW,img.codeBook,imageCode);
+        ArrayList<String> imageCode = split(blockSize, blockW, blockH);
+        IOFile ioFile = new IOFile(img.matrix.length / blockW, img.codeBook, imageCode);
         try {
-            ioFile.writToFile(new File(path).getName() + ".txt");
+            Path path1 = Paths.get(path);
+            ioFile.writToFile(path1.getFileName() + ".txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,7 +137,7 @@ public class VectorQuantization {
                 }
 
                 int minIndex = distance.indexOf(Collections.min(distance));
-                if(performance==5){
+                if (performance == 5) {
                     childrenPosWithCode.add(Integer.toBinaryString(minIndex));
                 }
                 int children = childrenCount.get(minIndex);
@@ -134,19 +150,19 @@ public class VectorQuantization {
                 }
                 willSplit.set(minIndex, tmp);
             }
-            if(performance==5){
+            if (performance == 5) {
                 return childrenPosWithCode;
             }
             for (int i = 0; i < willSplit.size(); i++) {
                 double[][] tmp = willSplit.get(i);
-                int[][]tmpp= new int[blockH][blockW];
+                int[][] tmpp = new int[blockH][blockW];
                 for (int y = 0; y < blockH; y++) {
                     for (int x = 0; x < blockW; x++) {
                         tmp[y][x] = tmp[y][x] / childrenCount.get(i);
-                        tmpp[y][x]=(int)tmp[y][x];
+                        tmpp[y][x] = (int) tmp[y][x];
                     }
                 }
-                img.codeBook.set(i,tmpp);
+                img.codeBook.set(i, tmpp);
                 willSplit.set(i, tmp);
             }
         }
@@ -236,16 +252,16 @@ public class VectorQuantization {
 
         int imgWidth = img.matrix[0].length;
         int imgHeight = img.matrix.length;
-        int oldWidth=imgWidth;
-        int oldHeight=imgHeight;
+        int oldWidth = imgWidth;
+        int oldHeight = imgHeight;
         /*if (imgWidth % bookW != 0) imgWidth = ((imgWidth / bookW) + 1) * bookW;
         if (imgHeight % bookH != 0) imgHeight = ((imgHeight / bookH) + 1) * bookH;*/
-        while(imgWidth%bookW!=0)
+        while (imgWidth % bookW != 0)
             imgWidth++;
-        while (imgHeight%bookH!=0)
+        while (imgHeight % bookH != 0)
             imgHeight++;
 
-        int [][]newMatrix = new int[imgHeight][imgWidth];
+        int[][] newMatrix = new int[imgHeight][imgWidth];
 
         for (int y = 0; y < oldHeight; y++) {
             for (int x = 0; x < oldWidth; x++) {
@@ -280,7 +296,8 @@ public class VectorQuantization {
             }
         } catch (IOException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "image Not Found");
+
         }
         img.matrix = imageMAtrix;
     }
@@ -301,14 +318,12 @@ public class VectorQuantization {
 
             }
         }
-
         File f = new File(outPath);
-
         try {
             ImageIO.write(img, "jpg", f);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "no such file or directory");
+
         }
     }
 

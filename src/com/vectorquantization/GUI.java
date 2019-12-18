@@ -7,15 +7,15 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 public class GUI extends JFrame {
-    private JTextField textField1;
-    private JTextField textField2;
-    private JTextField textField3;
+    private JTextField boockW;
+    private JTextField bookH;
+    private JTextField codeBookLength;
     private JButton compressImageButton;
     private JButton deCompressImageButton;
-    private JTextField compressArea;
+    /*private JTextField compressArea;
     private JTextField deCompressArea;
     private JButton browseButton;
-    private JButton browseButton1;
+    private JButton browseButton1;*/
     private JPanel panel1;
 
     public GUI() {
@@ -34,9 +34,22 @@ public class GUI extends JFrame {
             public void actionPerformed(ActionEvent actionEvent) {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setMultiSelectionEnabled(false);
+                chooser.addChoosableFileFilter(new FileNameExtensionFilter("Images", "jpg", "png"));
                 chooser.showOpenDialog(null);
                 File f = chooser.getSelectedFile();
+                if (f != null) {
+                    VectorQuantization vectorQuantization = new VectorQuantization();
 
+                    try {
+                        int width = Integer.parseInt(boockW.getText());
+                        int height = Integer.parseInt(bookH.getText());
+                        int length = Integer.parseInt(codeBookLength.getText());
+                        vectorQuantization.compress(width, height, length, f.getPath());
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null, "Enter Valid Data!");
+                    }
+
+                }
             }
         });
         deCompressImageButton.addActionListener(new ActionListener() {
@@ -46,17 +59,23 @@ public class GUI extends JFrame {
                 chooser.setMultiSelectionEnabled(false);
                 chooser.showOpenDialog(null);
                 File f = chooser.getSelectedFile();
+                if (f != null) {
+                    VectorQuantization vectorQuantization = new VectorQuantization();
+                    vectorQuantization.deCompress(f.getPath());
+                    System.out.println(f.getPath());
+
+                }
             }
         });
-        browseButton.addActionListener(new ActionListener() {
+        /*browseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JFileChooser chooser = new JFileChooser();
                 chooser.setControlButtonsAreShown(false);
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 chooser.showOpenDialog(null);
-                File f = chooser.getSelectedFile();
-                compressArea.setText(f.getAbsolutePath());
+                if (chooser.getCurrentDirectory() != null)
+                    compressArea.setText(String.valueOf(chooser.getCurrentDirectory()));
             }
         });
         browseButton1.addActionListener(new ActionListener() {
@@ -66,10 +85,10 @@ public class GUI extends JFrame {
                 chooser.setControlButtonsAreShown(false);
                 chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
                 chooser.showOpenDialog(null);
-                File f = chooser.getSelectedFile();
-                deCompressArea.setText(f.getAbsolutePath());
+                if (chooser.getCurrentDirectory() != null)
+                    deCompressArea.setText(String.valueOf(chooser.getCurrentDirectory()));
             }
-        });
+        });*/
 
 
     }
