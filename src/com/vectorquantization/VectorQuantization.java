@@ -13,27 +13,38 @@ public class VectorQuantization {
     public void deCompress(String path) throws IOException, ClassNotFoundException {
         IOFile ioFile = IOFile.ReadFromFile(path);
         int[][] image = deCode(ioFile);
-        writeImage(image,"qqqqqqq.jpg");
+        writeImage(image, "qqqqqqq.jpg");
     }
 
     private int[][] deCode(IOFile ioFile) {
+        System.out.println("+++++++  "+ioFile.imgCode);
+
         int bookW = ioFile.codeBook.get(0)[0].length;
         int bookH = ioFile.codeBook.get(0).length;
+        for(int[][]tmp:ioFile.codeBook){
+            for(int y=0;y<bookH;y++){
+                for(int x=0;x<bookW;x++){
+                    System.out.print(tmp[y][x]+" ");
+                }
+                System.out.println();
+            }
+            System.out.println();
+        }
         int imgWidth = ioFile.numOfColumns * bookW;
         int imgHeight = (ioFile.imgCode.size() / ioFile.numOfColumns) * bookH;
         int image[][] = new int[imgHeight][imgWidth];
-        int y=0;
+        int y = 0;
         int x = 0;
-        int countRow=0;
+        int countRow = 0;
         for (int i = 0; i < ioFile.imgCode.size(); i++) {
             int index = Integer.parseInt(ioFile.imgCode.get(i), 2);
             int[][] currBlock = ioFile.codeBook.get(index);
-            if(i%ioFile.numOfColumns==0&&i!=0){
-                countRow+=bookH;
-                x=0;
+            if (i % ioFile.numOfColumns == 0 && i != 0) {
+                countRow += bookH;
+                x = 0;
             }
-            y=countRow;
-            int tmp=x;
+            y = countRow;
+            int tmp = x;
             for (int bookY = 0; bookY < bookH; bookY++) {
                 for (int bookX = 0; bookX < bookW; bookX++) {
                     image[y][x] = currBlock[bookY][bookX];
@@ -42,9 +53,9 @@ public class VectorQuantization {
                 x = tmp;
                 y++;
             }
-            x+=bookW;
+            x += bookW;
         }
-
+        System.out.println("()()()()()()()()()()()()()()");
         for (y = 0; y < imgHeight; y++) {
             for (x = 0; x < imgWidth; x++) {
                 System.out.print(image[y][x] + " ");
@@ -56,149 +67,167 @@ public class VectorQuantization {
 
     public void compress(int blockW, int blockH, int blockSize, String path) {
         convertImageToMatrix(path);
+        //img.matrix = mat;
         convertImgToBlocks(blockW, blockH);
-        ArrayList<Node> codeBooksWithChildren = split(blockSize, blockW, blockH);
-        ArrayList<String> imageCodes = new ArrayList<>();
-        for (int[][] imgBlock : img.imgBlocks) {
-            for (int j = 0; j < codeBooksWithChildren.size(); j++) {
-                Node currNode = codeBooksWithChildren.get(j);
-                if (currNode.blocksOwns.contains(imgBlock)) {
-                    imageCodes.add(Integer.toBinaryString(j));
-                    break;
-                }
-            }
-        }
-        ArrayList<int[][]> codeBook = new ArrayList<>();
-        for (Node currNode : codeBooksWithChildren) {
-            codeBook.add(currNode.block);
-        }
-        IOFile ioFile = new IOFile(img.matrix.length / blockW, codeBook, imageCodes);
+
+        ArrayList<String>imageCode=split(blockSize, blockW, blockH);
+        IOFile ioFile=new IOFile(img.matrix.length/blockW,img.codeBook,imageCode);
         try {
-            ioFile.writToFile(new File(path).getName()+".txt");
+            ioFile.writToFile(new File(path).getName() + ".txt");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        /*for(int i=0;i<ss.size();i++){
+        for(int [][]codeBook:img.codeBook){
             for(int y=0;y<blockH;y++){
-                for (int x=0;x<blockW;x++)
-                    System.out.print(ss.get(i).block[y][x]+" ");
+                for (int x=0;x<blockW;x++){
+                    System.out.print(codeBook[y][x]+" ");
+                }
                 System.out.println();
             }
-            System.out.println("--------------");
-        }*/
-
+            System.out.println();
+        }
     }
 
-    private static void euclidean(ArrayList<Node> splitNode, int blockW, int blockH) {
-        /*for(Node node:splitNode){
-            int [][]mm=node.block;
-            for(int y=0;y<blockH;y++){
-                for(int x=0;x<blockW;x++){
-                    System.out.print(mm[y][x]+" ");
-                }
-                System.out.println();
-            }
-            System.out.println("------");
-        }
-        System.out.println(";;;;;;;;;;")*/
-        ;
-        ArrayList<Double> distances = new ArrayList<>();
-        double sum;
-        for (int i = 0; i < img.imgBlocks.size(); i++) {
-            int[][] currBlock = img.imgBlocks.get(i);
-            distances.clear();
-            sum = 0.0;
-            for (Node currNode : splitNode) {
-                for (int y = 0; y < blockH; y++) {
-                    for (int x = 0; x < blockW; x++) {
-                        sum += Math.pow(currNode.block[y][x] - currBlock[y][x], 2);
-                    }
-                }
-                distances.add(Math.sqrt(sum));
-                sum = 0.0;
-            }
-            int minIndex = distances.indexOf(Collections.min(distances));
-            splitNode.get(minIndex).blocksOwns.add(currBlock);
-        }
 
-
-   /*     for(Node node:splitNode){
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!");
-            int [][]mm=node.block;
-            for(int y=0;y<blockH;y++){
-                for(int x=0;x<blockW;x++){
-                    System.out.print(mm[y][x]+" ");
-                }
-                System.out.println();
-            }
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!");
-            for(int [][]xx:node.blocksOwns){
-                for(int y=0;y<blockH;y++){
-                    for(int x=0;x<blockW;x++){
-                        System.out.print(xx[y][x]+" ");
-                    }
-                    System.out.println("");
-
-                }
-                System.out.println("------");
-            }
-
-        }*/
-
-
-    }
-
-    private static ArrayList<Node> split(int bookSize, int blockW, int blockH) {
+    private static ArrayList<String> split(int bookSize, int blockW, int blockH) {
         int numOfSplits = (int) Math.ceil(Math.log(bookSize) / Math.log(2));
-        int[][] root = getAvgBlock(img.imgBlocks, blockW, blockH);
-        Node node = new Node();
-        node.block = root;
-        ArrayList<Node> splitNodes = new ArrayList<>();
-        splitNodes.add(node);
+        ArrayList<double[][]> willSplit = new ArrayList<>();
+        willSplit.add(getAvgBlock(img.imgBlocks, blockW, blockH));
+        ArrayList<int[][]> codeBook = new ArrayList<>();
         for (int i = 0; i < numOfSplits; i++) {
-            int siz = splitNodes.size();
-            for (int j = 0; j < siz; j++) {
-                for (int k = 0; k < 2; k++) {
-                    Node n = new Node();
-                    n.block = new int[blockH][blockW];
+            codeBook.clear();
+            for (double[][] tmpRoot : willSplit) {
+                for (int sp = 0; sp < 2; sp++) {
+                    int[][] tmp = new int[blockH][blockW];
                     for (int y = 0; y < blockH; y++) {
                         for (int x = 0; x < blockW; x++) {
-                            if (k == 0) {
-                                n.block[y][x] = splitNodes.get(0).block[y][x] - 1;
+                            if (sp == 0) {
+                                tmp[y][x] = (int) Math.floor(tmpRoot[y][x]);
                             } else {
-                                n.block[y][x] = splitNodes.get(0).block[y][x] + 1;
+                                tmp[y][x] = (int) Math.ceil(tmpRoot[y][x]);
                             }
                         }
                     }
-                    splitNodes.add(n);
-                }
-                splitNodes.remove(0);
-                euclidean(splitNodes, blockW, blockH);
-                for (int splitMover = 0; splitMover < splitNodes.size(); splitMover++) {
-                    Node nn = new Node();
-                    nn.block = getAvgBlock(splitNodes.get(0).blocksOwns, blockW, blockH);
-                    splitNodes.add(nn);
-                    splitNodes.remove(0);
+                    codeBook.add(tmp);
                 }
             }
+            willSplit.clear();
+            willSplit = getNextsplitWithEcelidian(codeBook, blockW, blockH);
         }
-        euclidean(splitNodes, blockW, blockH);
-        return splitNodes;
+        img.codeBook = codeBook;
+        ArrayList<String> childrenPosWithCodeBook = morePerformance(blockW, blockH);
+
+
+        return childrenPosWithCodeBook;
     }
 
-    private static int[][] getAvgBlock(ArrayList<int[][]> blocks, int blockW, int blockH) {
-        int[][] block = new int[blockH][blockW];
+    private static ArrayList<String> morePerformance(int blockW, int blockH) {
+        ArrayList<String> childrenPosWithCode = new ArrayList<>();
+        //for (int i = 0; i < img.imgBlocks.size(); i++) childrenPosWithCode.add("");
+        for (int performance = 0; true; performance++) {
+            ArrayList<double[][]> willSplit = new ArrayList<>();
+            ArrayList<Integer> childrenCount = new ArrayList<>();
+            for (int i = 0; i < img.codeBook.size(); i++) {
+                childrenCount.add(0);
+                willSplit.add(new double[blockW][blockH]);
+            }
+            ArrayList<Double> distance = new ArrayList<>();
+            for (int[][] currImgBlock : img.imgBlocks) {
+                distance.clear();
+                for (int[][] currBook : img.codeBook) {
+                    double sum = 0.0;
+                    for (int y = 0; y < blockH; y++) {
+                        for (int x = 0; x < blockW; x++) {
+                            sum += Math.pow(currBook[y][x] - currImgBlock[y][x], 2);
+                        }
+                    }
+                    distance.add(Math.sqrt(sum));
+                }
+
+                int minIndex = distance.indexOf(Collections.min(distance));
+                if(performance==0){
+                    childrenPosWithCode.add(Integer.toBinaryString(minIndex));
+                }
+                int children = childrenCount.get(minIndex);
+                childrenCount.set(minIndex, children + 1);
+                double[][] tmp = willSplit.get(minIndex);
+                for (int y = 0; y < blockH; y++) {
+                    for (int x = 0; x < blockW; x++) {
+                        tmp[y][x] += currImgBlock[y][x];
+                    }
+                }
+                willSplit.set(minIndex, tmp);
+            }
+            if(performance==0){
+                return childrenPosWithCode;
+            }
+            for (int i = 0; i < willSplit.size(); i++) {
+                double[][] tmp = willSplit.get(i);
+                int[][]tmpp= new int[blockH][blockW];
+                for (int y = 0; y < blockH; y++) {
+                    for (int x = 0; x < blockW; x++) {
+                        tmp[y][x] = tmp[y][x] / childrenCount.get(i);
+                        tmpp[y][x]=(int)tmp[y][x];
+                    }
+                }
+                img.codeBook.set(i,tmpp);
+                willSplit.set(i, tmp);
+            }
+        }
+
+
+    }
+
+    private static ArrayList<double[][]> getNextsplitWithEcelidian(ArrayList<int[][]> codeBook, int blockW, int blockH) {
+        ArrayList<double[][]> willSplit = new ArrayList<>();
+        ArrayList<Integer> childrenCount = new ArrayList<>();
+        for (int i = 0; i < codeBook.size(); i++) {
+            childrenCount.add(0);
+            willSplit.add(new double[blockW][blockH]);
+        }
+        ArrayList<Double> distance = new ArrayList<>();
+        for (int[][] currImgBlock : img.imgBlocks) {
+            distance.clear();
+            for (int[][] currBook : codeBook) {
+                double sum = 0.0;
+                for (int y = 0; y < blockH; y++) {
+                    for (int x = 0; x < blockW; x++) {
+                        sum += Math.pow(currBook[y][x] - currImgBlock[y][x], 2);
+                    }
+                }
+                distance.add(Math.sqrt(sum));
+            }
+
+            int minIndex = distance.indexOf(Collections.min(distance));
+            int children = childrenCount.get(minIndex);
+            childrenCount.set(minIndex, children + 1);
+            double[][] tmp = willSplit.get(minIndex);
+            for (int y = 0; y < blockH; y++) {
+                for (int x = 0; x < blockW; x++) {
+                    tmp[y][x] += currImgBlock[y][x];
+                }
+            }
+            willSplit.set(minIndex, tmp);
+        }
+        for (int i = 0; i < willSplit.size(); i++) {
+            double[][] tmp = willSplit.get(i);
+            for (int y = 0; y < blockH; y++) {
+                for (int x = 0; x < blockW; x++) {
+                    tmp[y][x] = tmp[y][x] / childrenCount.get(i);
+                }
+            }
+            willSplit.set(i, tmp);
+        }
+        return willSplit;
+    }
+
+    private static double[][] getAvgBlock(ArrayList<int[][]> blocks, int blockW, int blockH) {
+        double[][] block = new double[blockH][blockW];
         for (int i = 0; i < blocks.size(); i++) {
             for (int y = 0; y < blockH; y++) {
                 for (int x = 0; x < blockW; x++) {
-                    block[y][x] += blocks.get(i)[y][x];
+                    block[y][x] += (blocks.get(i)[y][x] / (double) blocks.size());
                 }
-            }
-        }
-        for (int y = 0; y < blockH; y++) {
-            for (int x = 0; x < blockW; x++) {
-                //block[y][x] = (int) Math.round(block[y][x] / (double) blocks.size());
-                block[y][x]=block[y][x]/blocks.size();
             }
         }
         return block;
@@ -225,22 +254,30 @@ public class VectorQuantization {
                 img.imgBlocks.add(block);
             }
         }
-        System.out.println(" ***** "+img.imgBlocks.size());
+        System.out.println(" ***** " + img.imgBlocks.size());
     }
 
     private static void handleImgWithBookSize(int bookW, int bookH) {
+
         int imgWidth = img.matrix[0].length;
         int imgHeight = img.matrix.length;
-        if (imgWidth % bookW != 0) imgWidth = ((imgWidth / bookW) + 1) * bookW;
-        if (imgHeight % bookH != 0) imgHeight = ((imgHeight / bookH) + 1) * bookH;
-        int newMatrix[][] = new int[imgHeight][imgWidth];
-        for (int y = 0; y < imgHeight; y++) {
-            for (int x = 0; x < imgWidth; x++) {
+        int oldWidth=imgWidth;
+        int oldHeight=imgHeight;
+        /*if (imgWidth % bookW != 0) imgWidth = ((imgWidth / bookW) + 1) * bookW;
+        if (imgHeight % bookH != 0) imgHeight = ((imgHeight / bookH) + 1) * bookH;*/
+        while(imgWidth%bookW!=0)
+            imgWidth++;
+        while (imgHeight%bookH!=0)
+            imgHeight++;
+
+        int [][]newMatrix = new int[imgHeight][imgWidth];
+
+        for (int y = 0; y < oldHeight; y++) {
+            for (int x = 0; x < oldWidth; x++) {
                 newMatrix[y][x] = img.matrix[y][x];
             }
         }
         img.matrix = newMatrix;
-        System.out.println(" ;; "+img.matrix.length+" "+img.matrix[0].length);
     }
 
     private static void convertImageToMatrix(String filePath) {
@@ -250,6 +287,7 @@ public class VectorQuantization {
             BufferedImage img = ImageIO.read(f);
             int oldW = img.getWidth();
             int oldH = img.getHeight();
+            System.out.println(oldH+" "+oldW);
             imageMAtrix = new int[oldH][oldW];
             for (int y = 0; y < oldH; y++) {
                 for (int x = 0; x < oldW; x++) {
@@ -272,6 +310,7 @@ public class VectorQuantization {
         }
         img.matrix = imageMAtrix;
     }
+
     public static void writeImage(int[][] imagePixels, String outPath) {
         int oldH = imagePixels.length;
         int oldW = imagePixels[0].length;
