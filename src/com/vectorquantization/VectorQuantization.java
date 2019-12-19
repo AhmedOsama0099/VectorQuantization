@@ -12,7 +12,6 @@ import java.util.Collections;
 
 public class VectorQuantization {
     static Image img = new Image();
-
     public void deCompress(String path) {
         IOFile ioFile = null;
         try {
@@ -66,7 +65,6 @@ public class VectorQuantization {
 
     public void compress(int blockW, int blockH, int blockSize, String path) {
         convertImageToMatrix(path);
-        //img.matrix = mat;
         convertImgToBlocks(blockW, blockH);
 
         ArrayList<String> imageCode = split(blockSize, blockW, blockH);

@@ -1,10 +1,15 @@
 package com.vectorquantization;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class GUI extends JFrame {
     private JTextField boockW;
@@ -17,6 +22,7 @@ public class GUI extends JFrame {
     private JButton browseButton;
     private JButton browseButton1;*/
     private JPanel panel1;
+    private JLabel showImg;
 
     public GUI() {
         setTitle("Arithmetic Coding");
@@ -45,11 +51,16 @@ public class GUI extends JFrame {
                         int height = Integer.parseInt(bookH.getText());
                         int length = Integer.parseInt(codeBookLength.getText());
                         vectorQuantization.compress(width, height, length, f.getPath());
+
+                        ImageIcon imgThisImg = new ImageIcon(f.getPath());
+                        showImg.setIcon(imgThisImg);
+
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null, "Enter Valid Data!");
                     }
 
                 }
+
             }
         });
         deCompressImageButton.addActionListener(new ActionListener() {
@@ -62,8 +73,11 @@ public class GUI extends JFrame {
                 if (f != null) {
                     VectorQuantization vectorQuantization = new VectorQuantization();
                     vectorQuantization.deCompress(f.getPath());
-                    System.out.println(f.getPath());
-
+                    Path p = Paths.get(f.getPath());
+                    String name = p.getFileName().toString();
+                    name = name.substring(0, name.lastIndexOf('.'));
+                    ImageIcon imgThisImg = new ImageIcon("DeCompressed_"+name);
+                    showImg.setIcon(imgThisImg);
                 }
             }
         });
