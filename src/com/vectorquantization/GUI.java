@@ -1,13 +1,11 @@
 package com.vectorquantization;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -51,10 +49,7 @@ public class GUI extends JFrame {
                         int height = Integer.parseInt(bookH.getText());
                         int length = Integer.parseInt(codeBookLength.getText());
                         vectorQuantization.compress(width, height, length, f.getPath());
-
-                        ImageIcon imgThisImg = new ImageIcon(f.getPath());
-                        showImg.setIcon(imgThisImg);
-
+                        showImg.setIcon(new ImageIcon(new ImageIcon(f.getPath()).getImage().getScaledInstance(600, 450, Image.SCALE_DEFAULT)));
                     } catch (Exception e) {
                         JOptionPane.showMessageDialog(null, "Enter Valid Data!");
                     }
@@ -76,34 +71,10 @@ public class GUI extends JFrame {
                     Path p = Paths.get(f.getPath());
                     String name = p.getFileName().toString();
                     name = name.substring(0, name.lastIndexOf('.'));
-                    ImageIcon imgThisImg = new ImageIcon("DeCompressed_"+name);
-                    showImg.setIcon(imgThisImg);
+                    showImg.setIcon(new ImageIcon(new ImageIcon("DeCompressed_"+name).getImage().getScaledInstance(500, 450, Image.SCALE_DEFAULT)));
                 }
             }
         });
-        /*browseButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                JFileChooser chooser = new JFileChooser();
-                chooser.setControlButtonsAreShown(false);
-                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                chooser.showOpenDialog(null);
-                if (chooser.getCurrentDirectory() != null)
-                    compressArea.setText(String.valueOf(chooser.getCurrentDirectory()));
-            }
-        });
-        browseButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent actionEvent) {
-                JFileChooser chooser = new JFileChooser();
-                chooser.setControlButtonsAreShown(false);
-                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                chooser.showOpenDialog(null);
-                if (chooser.getCurrentDirectory() != null)
-                    deCompressArea.setText(String.valueOf(chooser.getCurrentDirectory()));
-            }
-        });*/
-
 
     }
 
